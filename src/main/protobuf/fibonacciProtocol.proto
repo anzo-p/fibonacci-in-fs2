@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package com.anzop;
+
+message BigIntegerProto {
+  bytes value = 1;
+}
+
+message FibonacciProto {
+  BigIntegerProto lowInteger = 1;
+  BigIntegerProto highInteger = 2;
+}
