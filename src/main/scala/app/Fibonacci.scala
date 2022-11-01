@@ -7,13 +7,14 @@ object Fibonacci {
   import cats.data.ValidatedNec
   import cats.implicits._
 
-  type ValidationResult[A] = ValidatedNec[String, A]
+  type ValidationResult[A] = ValidatedNec[ValidationError, A]
 
   def validatePositive(value: BigInt): ValidationResult[BigInt] =
-    if (value >= 0) value.validNec else "value cannot be negative".invalidNec
+    if (value >= 0) value.validNec else ValidationError(s"value $value cannot be negative").invalidNec
 
   def validateNotEqual(a: BigInt, b: BigInt): ValidationResult[BigInt] =
-    if (a != b || a == 1) a.validNec else "values cannot be equal".invalidNec
+    if (a != b || a == 1) a.validNec
+    else ValidationError(s"lowInteger $a and highInteger $b cannot be equal (unless when 1 and 1)").invalidNec
 
   def validateFibonacci(lowInteger: BigInt, highInteger: BigInt): ValidationResult[Fibonacci] = {
     val lo = validatePositive(lowInteger)

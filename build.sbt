@@ -8,6 +8,7 @@ lazy val root = (project in file("."))
   )
 
 val catsEffect       = "3.2.0"
+val circe            = "0.14.2"
 val fs2Kafka         = "2.3.+"
 val http4sV          = "0.23.12"
 val log4catsV        = "2.3.1"
@@ -19,6 +20,7 @@ libraryDependencies ++= Seq(
   "com.github.fd4s"      %% "fs2-kafka"           % fs2Kafka,
   "org.http4s"           %% "http4s-dsl"          % http4sV,
   "org.http4s"           %% "http4s-blaze-server" % http4sV,
+  "io.circe"             %% "circe-generic"       % circe,
   "org.typelevel"        %% "log4cats-slf4j"      % log4catsV,
   "org.slf4j"            % "slf4j-api"            % slf4jV,
   "com.thesamet.scalapb" %% "scalapb-runtime"     % scalapb.compiler.Version.scalapbVersion % "protobuf"
