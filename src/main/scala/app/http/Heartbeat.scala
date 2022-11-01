@@ -2,8 +2,10 @@ package app.http
 
 import app.{Fibonacci, ProtobufConversions}
 import cats.Monad
+import cats.data.EitherT
 import cats.effect.Async
 import cats.implicits.toSemigroupKOps
+import com.anzop.fibonacciProtocol.FibonacciProto
 import fs2.kafka.{KafkaProducer, ProducerRecord, ProducerRecords, ProducerSettings}
 import org.http4s.dsl.Http4sDsl
 import org.http4s.{HttpApp, HttpRoutes, Response}
@@ -36,20 +38,33 @@ class SeedEmitter[F[_] : Logger : Monad](producer: SimpleProducer[F]) {
   private val dsl = Http4sDsl[F]
   import dsl._
 
-  def emit: F[Response[F]] = {
-    val initEvent = ProtobufConversions.toProtobuf(Fibonacci(0, 1))
-    val record    = ProducerRecord("quotations", Some("init-record-key"), initEvent.toByteArray)
-    //.withHeaders(..)
+  def errorResponse(throwable: Throwable): F[Response[F]] =
+    InternalServerError(s"failed to init on ${throwable.toString}")
 
-    producer.send(List(record)).flatMap {
-      case Right(_) =>
-        Accepted("")
-      case Left(throwable) =>
-        //Logger[F].error(throwable)(s"failed to send batch job: $batch")
-        InternalServerError("failed to init")
+  def emit: F[Response[F]] = {
+    val seedOr: F[Either[Throwable, FibonacciProto]] =
+      (for {
+        seed  <- EitherT.fromEither[F](Fibonacci.create(0, 1)).leftMap(e => new Throwable(e.message))
+        proto <- EitherT.pure[F, Throwable](ProtobufConversions.toProtobuf(seed))
+      } yield {
+        proto
+      }).value
+
+    seedOr.flatMap {
+      case Left(throwable: Throwable) =>
+        errorResponse(throwable)
+
+      case Right(message: FibonacciProto) =>
+        val record = ProducerRecord("quotations", Some("init-record-key"), message.toByteArray)
+        producer.send(List(record)).flatMap {
+          case Right(_) =>
+            Accepted("")
+
+          case Left(throwable) =>
+            errorResponse(throwable)
+        }
     }
   }
-
 }
 
 class Heartbeat[F[_] : Logger : Monad](producer: SimpleProducer[F]) {

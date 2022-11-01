@@ -9,6 +9,8 @@ object Fibonacci {
 
   type ValidationResult[A] = ValidatedNec[ValidationError, A]
 
+  private def apply = new Fibonacci(_, _)
+
   def validatePositive(value: BigInt): ValidationResult[BigInt] =
     if (value >= 0) value.validNec else ValidationError(s"value $value cannot be negative").invalidNec
 
@@ -21,5 +23,15 @@ object Fibonacci {
     val hi = validatePositive(highInteger).combine(validateNotEqual(highInteger, lowInteger)).as(highInteger)
 
     (lo, hi).mapN(Fibonacci.apply)
+  }
+
+  def create(lowInteger: BigInt, highInteger: BigInt): Either[ValidationError, Fibonacci] = {
+    validateFibonacci(lowInteger, highInteger) match {
+      case Invalid(e) =>
+        Left(ValidationError(e.toChain.toList.mkString(",")))
+
+      case Valid(a) =>
+        Right(a)
+    }
   }
 }

@@ -42,6 +42,14 @@ final case class UpStream[F[_] : Async : Logger](
 
     Test
     - everything
+
+
+    Memo
+    - ignore metrics and sentry for now, come back to later
+    - add logging
+    - refactor Heartbeat
+    - after that need just a teensy bit of stylizing
+    - and all tests
    */
 
   def serialize(value: Fibonacci): Array[Byte] =
@@ -53,12 +61,12 @@ final case class UpStream[F[_] : Async : Logger](
       value <- ProtobufConversions.fromProtobuf(proto)
     } yield value
 
-  def inc(fibonacci: Fibonacci): Fibonacci =
+  def inc(fibonacci: Fibonacci): Either[ValidationError, Fibonacci] =
     if (fibonacci.lowInteger > 1000) {
-      Fibonacci(fibonacci.highInteger, fibonacci.highInteger)
+      Fibonacci.create(fibonacci.highInteger, fibonacci.highInteger)
     }
     else {
-      Fibonacci(fibonacci.highInteger, fibonacci.lowInteger + fibonacci.highInteger)
+      Fibonacci.create(fibonacci.highInteger, fibonacci.lowInteger + fibonacci.highInteger)
     }
 
   def compose(value: Fibonacci): ProducerRecord[Some[String], Array[Byte]] =
@@ -73,7 +81,7 @@ final case class UpStream[F[_] : Async : Logger](
       (for {
         currVal <- EitherT.fromEither[F](deserialize(record.value).leftMap(e => new Throwable(e.message)))
         _       <- EitherT.pure[F, Throwable](println(s"currVal $currVal")) // log debug
-        nextVal <- EitherT.pure[F, Throwable](inc(currVal))
+        nextVal <- EitherT.fromEither[F](inc(currVal)).leftMap(e => new Throwable(e.message))
         _       <- EitherT.right[Throwable](send(compose(nextVal)))
       } yield ()).value
 
