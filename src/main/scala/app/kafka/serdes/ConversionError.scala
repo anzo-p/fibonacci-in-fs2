@@ -1,4 +1,4 @@
-package app
+package app.kafka.serdes
 
 trait DecodeError {
   val message: String

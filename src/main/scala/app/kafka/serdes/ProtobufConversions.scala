@@ -1,6 +1,7 @@
-package app
+package app.kafka.serdes
 
-import cats.implicits.toBifunctorOps
+import app.models.Fibonacci
+import cats.implicits._
 import com.anzop.fibonacciProtocol.{BigIntegerProto, FibonacciProto}
 import com.google.protobuf.ByteString
 

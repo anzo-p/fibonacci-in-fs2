@@ -10,20 +10,29 @@ lazy val root = (project in file("."))
 val catsEffect       = "3.2.0"
 val circe            = "0.14.2"
 val fs2Kafka         = "2.3.+"
-val http4sV          = "0.23.12"
-val log4catsV        = "2.3.1"
+val http4s           = "0.23.12"
+val log4cats         = "2.3.1"
+val pureConfig       = "0.17.1"
 val scalaTestVersion = "3.2.10"
-val slf4jV           = "1.7.30"
+val slf4j            = "2.0.1"
+val typesafeConfig   = "1.4.2"
 
 libraryDependencies ++= Seq(
-  "org.typelevel"        %% "cats-effect"         % catsEffect,
-  "com.github.fd4s"      %% "fs2-kafka"           % fs2Kafka,
-  "org.http4s"           %% "http4s-dsl"          % http4sV,
-  "org.http4s"           %% "http4s-blaze-server" % http4sV,
-  "io.circe"             %% "circe-generic"       % circe,
-  "org.typelevel"        %% "log4cats-slf4j"      % log4catsV,
-  "org.slf4j"            % "slf4j-api"            % slf4jV,
-  "com.thesamet.scalapb" %% "scalapb-runtime"     % scalapb.compiler.Version.scalapbVersion % "protobuf"
+  "org.typelevel"         %% "cats-effect"            % catsEffect,
+  "com.github.fd4s"       %% "fs2-kafka"              % fs2Kafka,
+  "org.http4s"            %% "http4s-dsl"             % http4s,
+  "org.http4s"            %% "http4s-blaze-server"    % http4s,
+  "io.circe"              %% "circe-generic"          % circe,
+  "org.typelevel"         %% "log4cats-slf4j"         % log4cats,
+  "com.github.pureconfig" %% "pureconfig-cats-effect" % pureConfig,
+  "com.github.pureconfig" %% "pureconfig"             % pureConfig,
+  "com.thesamet.scalapb"  %% "scalapb-runtime"        % scalapb.compiler.Version.scalapbVersion % "protobuf"
+)
+
+libraryDependencies ++= Seq(
+  "com.typesafe" % "config"       % typesafeConfig,
+  "org.slf4j"    % "slf4j-api"    % slf4j,
+  "org.slf4j"    % "slf4j-simple" % slf4j
 )
 
 libraryDependencies ++= Seq(

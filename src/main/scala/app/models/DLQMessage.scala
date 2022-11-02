@@ -1,10 +1,11 @@
-package app
+package app.models
 
-import io.circe._
+import io.circe.Json
 
 case class DLQMessage(eventKey: String, error: Json, stackTrace: Json)
 
 object DLQMessage {
+  import io.circe._
   import io.circe.generic.semiauto._
   import io.circe.syntax._
 
