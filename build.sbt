@@ -26,6 +26,7 @@ libraryDependencies ++= Seq(
   "org.typelevel"         %% "log4cats-slf4j"         % log4cats,
   "com.github.pureconfig" %% "pureconfig-cats-effect" % pureConfig,
   "com.github.pureconfig" %% "pureconfig"             % pureConfig,
+  "net.debasishg"         %% "redisclient"            % "3.41",
   "com.thesamet.scalapb"  %% "scalapb-runtime"        % scalapb.compiler.Version.scalapbVersion % "protobuf"
 )
 

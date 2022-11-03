@@ -4,17 +4,18 @@ import app.config.AppConfig
 import app.kafka.KafkaClientSettings
 import cats.Parallel
 import cats.effect._
+import com.redis.RedisClient
 import fs2.Stream
 import fs2.kafka.KafkaProducer
 import org.typelevel.log4cats.Logger
 
-final class StreamHandler[F[_] : Async : Parallel : Logger](appConfig: AppConfig) extends KafkaClientSettings {
+final class StreamHandler[F[_] : Async : Parallel : Logger](appConfig: AppConfig, redis: RedisClient) extends KafkaClientSettings {
 
   val streams: Stream[F, Unit] = KafkaProducer
     .stream(producerSettings(appConfig))
     .flatMap { producer =>
       val streams = List(
-        new UpStream[F](consumerSettings(appConfig), producer).upStream
+        new FibonacciStream[F](consumerSettings(appConfig), producer, redis).stream
       )
       Stream(streams: _*).parJoinUnbounded
     }
@@ -22,6 +23,6 @@ final class StreamHandler[F[_] : Async : Parallel : Logger](appConfig: AppConfig
 
 object StreamHandler {
 
-  def make[F[_] : Async : Parallel : Logger](appConfig: AppConfig): F[StreamHandler[F]] =
-    Sync[F].delay(new StreamHandler[F](appConfig))
+  def make[F[_] : Async : Parallel : Logger](appConfig: AppConfig, redis: RedisClient): F[StreamHandler[F]] =
+    Sync[F].delay(new StreamHandler[F](appConfig, redis))
 }
