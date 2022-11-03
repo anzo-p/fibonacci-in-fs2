@@ -14,6 +14,7 @@ object ProtobufConversions {
 
   def toProtobuf(value: Fibonacci): FibonacciProto =
     FibonacciProto(
+      value.round,
       Some(toProtobuf(value.lowInteger)),
       Some(toProtobuf(value.highInteger))
     )
@@ -34,6 +35,7 @@ object ProtobufConversions {
       lo <- proto.lowInteger
       hi <- proto.highInteger
     } yield Fibonacci.create(
+      proto.round,
       fromProtobuf(lo),
       fromProtobuf(hi)
     )

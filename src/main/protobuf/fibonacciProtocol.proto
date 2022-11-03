@@ -7,6 +7,7 @@ message BigIntegerProto {
 }
 
 message FibonacciProto {
-  BigIntegerProto lowInteger = 1;
-  BigIntegerProto highInteger = 2;
+  uint64 round = 1;
+  BigIntegerProto lowInteger = 2;
+  BigIntegerProto highInteger = 3;
 }

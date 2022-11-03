@@ -2,41 +2,52 @@ package app.models
 
 import app.kafka.serdes.ValidationError
 
-case class Fibonacci(lowInteger: BigInt, highInteger: BigInt)
+case class Fibonacci(round: Long, lowInteger: BigInt, highInteger: BigInt) { self =>
+
+  def inc: Either[ValidationError, Fibonacci] =
+    Fibonacci.create(
+      self.round + 1,
+      self.highInteger,
+      self.lowInteger + self.highInteger
+    )
+}
 
 object Fibonacci {
   import cats.data.Validated._
+  import io.circe._
+  import io.circe.syntax._
 
-  object ValidateFibonacci {
-    import cats.data.ValidatedNec
-    import cats.implicits._
+  implicit val encoder: Encoder[Fibonacci] = (fibo: Fibonacci) =>
+    Json.obj(
+      ("round", Json.fromLong(fibo.round)),
+      ("low integer", Json.fromBigInt(fibo.lowInteger)),
+      ("high integer", Json.fromBigInt(fibo.highInteger))
+    )
 
-    type ValidationResult[A] = ValidatedNec[ValidationError, A]
-
-    private def apply = new Fibonacci(_, _)
-
-    def validatePositive(value: BigInt): ValidationResult[BigInt] =
-      if (value >= 0) value.validNec else ValidationError(s"value $value cannot be negative").invalidNec
-
-    def validateNotEqual(a: BigInt, b: BigInt): ValidationResult[BigInt] =
-      if (a != b || a == 1) a.validNec
-      else ValidationError(s"lowInteger $a and highInteger $b cannot be equal (unless when 1 and 1)").invalidNec
-
-    def validate(lowInteger: BigInt, highInteger: BigInt): ValidationResult[Fibonacci] = {
-      val lo = validatePositive(lowInteger)
-      val hi = validatePositive(highInteger).combine(validateNotEqual(highInteger, lowInteger)).as(highInteger)
-
-      (lo, hi).mapN(Fibonacci.apply)
+  implicit val decoder: Decoder[Fibonacci] = (c: HCursor) =>
+    for {
+      n  <- c.downField("round").as[Long]
+      lo <- c.downField("foo").as[BigInt]
+      hi <- c.downField("bar").as[BigInt]
+    } yield {
+      new Fibonacci(n, lo, hi)
     }
-  }
 
-  def create(lowInteger: BigInt, highInteger: BigInt): Either[ValidationError, Fibonacci] = {
-    ValidateFibonacci.validate(lowInteger, highInteger) match {
+  private def apply = new Fibonacci(_, _, _)
+
+  def create(round: Long, lowInteger: BigInt, highInteger: BigInt): Either[ValidationError, Fibonacci] = {
+    ValidateFibonacci.validate(round, lowInteger, highInteger) match {
       case Invalid(e) =>
         Left(ValidationError(e.toChain.toList.mkString(",")))
 
       case Valid(a) =>
         Right(a)
     }
+  }
+
+  implicit class ExtendFibonacci(fibo: Fibonacci) {
+
+    def toJson: String =
+      fibo.asJson.toString
   }
 }
