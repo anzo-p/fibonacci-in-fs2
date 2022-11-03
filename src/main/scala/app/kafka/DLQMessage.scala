@@ -1,4 +1,4 @@
-package app.models
+package app.kafka
 
 import io.circe.Json
 
@@ -9,8 +9,8 @@ object DLQMessage {
   import io.circe.generic.semiauto._
   import io.circe.syntax._
 
-  implicit val decodeDlqMessage: Decoder[DLQMessage] = deriveDecoder
-  implicit val encodeDlqMessage: Encoder[DLQMessage] = deriveEncoder
+  implicit val decode: Decoder[DLQMessage] = deriveDecoder
+  implicit val encode: Encoder[DLQMessage] = deriveEncoder
 
   def apply(eventKey: String, throwable: Throwable): DLQMessage =
     DLQMessage(
@@ -18,4 +18,10 @@ object DLQMessage {
       error      = throwable.toString.asJson,
       stackTrace = throwable.getStackTrace.toList.map(_.toString).asJson
     )
+
+  implicit class ExtendDLQMessage(message: DLQMessage) {
+
+    def toJson: String =
+      message.asJson.toString
+  }
 }
