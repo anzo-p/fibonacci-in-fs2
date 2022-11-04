@@ -4,8 +4,8 @@ import app.kafka.serdes.ValidationError
 
 case class Fibonacci(round: Long, lowInteger: BigInt, highInteger: BigInt) { self =>
 
-  def inc: Either[ValidationError, Fibonacci] =
-    Fibonacci.create(
+  def inc: Fibonacci =
+    new Fibonacci(
       self.round + 1,
       self.highInteger,
       self.lowInteger + self.highInteger
@@ -38,7 +38,7 @@ object Fibonacci {
   def create(round: Long, lowInteger: BigInt, highInteger: BigInt): Either[ValidationError, Fibonacci] = {
     ValidateFibonacci.validate(round, lowInteger, highInteger) match {
       case Invalid(e) =>
-        Left(ValidationError(e.toChain.toList.mkString(",")))
+        Left(ValidationError(e.toChain.toList.map(_.message).mkString(",")))
 
       case Valid(a) =>
         Right(a)
