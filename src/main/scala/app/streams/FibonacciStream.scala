@@ -19,7 +19,7 @@ final case class FibonacciStream[F[_] : Async : Logger](
       (for {
         currVal   <- EitherT.fromEither[F](deserialize(record.value).leftMap(e => new Throwable(e.message)))
         nextVal   <- EitherT.pure[F, Throwable](currVal.inc)
-        nextEvent <- EitherT.pure[F, Throwable](compose(serialize(nextVal), topic))
+        nextEvent <- EitherT.pure[F, Throwable](compose(topic, serialize(nextVal)))
         _         <- EitherT.right[Throwable](send(ProducerRecords.one(nextEvent)))
         _         <- EitherT.pure[F, Throwable](redis.set("latest.fibo", nextVal.toJson))
       } yield ()).value

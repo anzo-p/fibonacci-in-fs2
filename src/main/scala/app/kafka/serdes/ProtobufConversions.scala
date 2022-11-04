@@ -19,11 +19,14 @@ object ProtobufConversions {
       Some(toProtobuf(value.highInteger))
     )
 
-  def fromByteArray(value: Option[Array[Byte]]): Either[ConversionError, FibonacciProto] =
+  def fromByteArray(value: Option[Array[Byte]]): Either[ConversionError, FibonacciProto] = {
+    val data = value.getOrElse("".getBytes)
+
     FibonacciProto
-      .validate(value.getOrElse("".getBytes))
+      .validate(data)
       .toEither
-      .leftMap(_ => ConversionError(s"cannot extract FibonacciProto from record value: $value"))
+      .leftMap(_ => ConversionError(s"cannot extract FibonacciProto from record value: $data"))
+  }
 
   def fromProtobuf(proto: BigIntegerProto): BigInt =
     BigInt(
@@ -42,7 +45,7 @@ object ProtobufConversions {
 
     validated match {
       case None =>
-        Left(ConversionError(s"cannot extract Fibonacci from input: ${proto.toProtoString}"))
+        Left(ValidationError(s"cannot validate Fibonacci from input: ${proto.toProtoString}"))
 
       case Some(a) =>
         a

@@ -18,7 +18,7 @@ abstract class UpStream[F[_] : Async : Logger](
 
   protected val dlqTopic: String
 
-  protected def compose(value: Array[Byte], topic: String, key: String = ""): ProducerRecord[Some[String], Array[Byte]]
+  protected def compose(topic: String, value: Array[Byte], key: String = ""): ProducerRecord[Some[String], Array[Byte]]
 
   protected def processEvent(record: ConsumerRecord[Option[String], Option[Array[Byte]]]): F[Unit]
 
@@ -33,7 +33,7 @@ abstract class UpStream[F[_] : Async : Logger](
     val dlqMessage = DLQMessage(committable.record.key.getOrElse(""), throwable).toJson
 
     for {
-      _ <- send(ProducerRecords.one(compose(dlqMessage.getBytes, dlqTopic), committable.offset))
+      _ <- send(ProducerRecords.one(compose(dlqTopic, dlqMessage.getBytes), committable.offset))
     } yield {
       Either.left(committable.offset)
     }

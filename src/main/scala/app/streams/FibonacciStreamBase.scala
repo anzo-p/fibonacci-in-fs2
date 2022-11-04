@@ -21,6 +21,6 @@ trait FibonacciStreamBase extends SerDes[Fibonacci] {
       value <- ProtobufConversions.fromProtobuf(proto)
     } yield value
 
-  def compose(value: Array[Byte], topic: String, key: String = UUID.randomUUID().toString): ProducerRecord[Some[String], Array[Byte]] =
+  def compose(topic: String, value: Array[Byte], key: String = UUID.randomUUID().toString): ProducerRecord[Some[String], Array[Byte]] =
     ProducerRecord(topic, Some(key), value)
 }

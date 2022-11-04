@@ -34,7 +34,7 @@ final class SeedEmitter[F[_] : Logger : Monad](producer: SimpleKafkaProducer[F])
         errorResponse(throwable)
 
       case Right(message: Fibonacci) =>
-        producer.send(compose(serialize(message), topic)).flatMap {
+        producer.send(compose(topic, serialize(message))).flatMap {
           case Left(throwable) =>
             errorResponse(throwable)
 
