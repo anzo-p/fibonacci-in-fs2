@@ -44,7 +44,7 @@ abstract class UpStream[F[_] : Async : Logger](
       .Stream
       .eval(Logger[F].error(s"[UpStream - Fatal Error] replace me with a fatal error tick to metrics and push into sentry the error: $th"))
 
-  val stream: fs2.Stream[F, Unit] = {
+  val stream: fs2.Stream[F, Unit] =
     KafkaConsumer
       .stream(settings)
       .evalTap(_.subscribeTo(topic))
@@ -68,5 +68,4 @@ abstract class UpStream[F[_] : Async : Logger](
       .handleErrorWith(th => fatalErrorHandler(th))
       .attempts(fs2.Stream.constant(FiniteDuration(10, SECONDS)))
       .void
-  }
 }

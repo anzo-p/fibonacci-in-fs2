@@ -35,7 +35,7 @@ object Fibonacci {
 
   private def apply = new Fibonacci(_, _, _)
 
-  def create(round: Long, lowInteger: BigInt, highInteger: BigInt): Either[ValidationError, Fibonacci] = {
+  def create(round: Long, lowInteger: BigInt, highInteger: BigInt): Either[ValidationError, Fibonacci] =
     ValidateFibonacci.validate(round, lowInteger, highInteger) match {
       case Invalid(e) =>
         Left(ValidationError(e.toChain.toList.map(_.message).mkString(",")))
@@ -43,7 +43,6 @@ object Fibonacci {
       case Valid(a) =>
         Right(a)
     }
-  }
 
   implicit class ExtendFibonacci(fibo: Fibonacci) {
 

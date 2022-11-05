@@ -6,7 +6,7 @@ import fs2.kafka.{KafkaProducer, ProducerRecord, ProducerRecords, ProducerSettin
 class SimpleKafkaProducer[F[_] : Async](producerSettingsMain: ProducerSettings[F, Option[String], Array[Byte]]) {
   import cats.implicits._
 
-  def send(record: ProducerRecord[Option[String], Array[Byte]]): F[Either[Throwable, Unit]] = {
+  def send(record: ProducerRecord[Option[String], Array[Byte]]): F[Either[Throwable, Unit]] =
     KafkaProducer
       .stream(producerSettingsMain)
       .evalMap { producer =>
@@ -15,5 +15,4 @@ class SimpleKafkaProducer[F[_] : Async](producerSettingsMain: ProducerSettings[F
       .compile
       .drain
       .attempt
-  }
 }

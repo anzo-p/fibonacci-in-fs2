@@ -16,11 +16,10 @@ case class AppConfig(kafkaClientConfigs: KafkaClientConfig)
 
 object AppConfig {
 
-  def loadConfigBlock[F[_] : Sync, T : ConfigReader : ClassTag](config: Config, configPath: String): F[T] = {
+  def loadConfigBlock[F[_] : Sync, T : ConfigReader : ClassTag](config: Config, configPath: String): F[T] =
     ConfigSource
       .fromConfig(config.getConfig(configPath))
       .loadF[F, T]()
-  }
 
   def load[F[_] : Sync](conf: Config): F[AppConfig] = {
     def validateAndCreate(kafkaConfigs: KafkaClientConfig): F[AppConfig] = {
