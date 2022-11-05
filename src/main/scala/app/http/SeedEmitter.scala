@@ -4,7 +4,6 @@ import app.kafka.SimpleKafkaProducer
 import app.models.Fibonacci
 import app.streams.FibonacciStreamBase
 import cats.Monad
-import cats.data.EitherT
 import cats.implicits._
 import org.http4s.Response
 import org.http4s.dsl.Http4sDsl
@@ -15,12 +14,10 @@ final class SeedEmitter[F[_] : Logger : Monad](producer: SimpleKafkaProducer[F])
   private val dsl = Http4sDsl[F]
   import dsl._
 
-  private def createInitial: F[Either[Throwable, Fibonacci]] =
-    (for {
-      seed <- EitherT.fromEither[F](Fibonacci.create(1, 0, 1)).leftMap(e => new Throwable(e.message))
-    } yield {
-      seed
-    }).value
+  private def createInitial: Either[Throwable, Fibonacci] =
+    Fibonacci
+      .create(1, 0, 1)
+      .leftMap(e => new Throwable(e.message))
 
   private def errorResponse(throwable: Throwable): F[Response[F]] = {
     val message = s"failed to produce seed due to error: ${throwable.getMessage}"
@@ -28,8 +25,8 @@ final class SeedEmitter[F[_] : Logger : Monad](producer: SimpleKafkaProducer[F])
       InternalServerError(message)
   }
 
-  def resolveInitial: F[Response[F]] =
-    createInitial.flatMap {
+  def resolveInitial(seed: Either[Throwable, Fibonacci]): F[Response[F]] =
+    seed match {
       case Left(throwable: Throwable) =>
         errorResponse(throwable)
 
@@ -44,5 +41,5 @@ final class SeedEmitter[F[_] : Logger : Monad](producer: SimpleKafkaProducer[F])
     }
 
   def emit: F[Response[F]] =
-    resolveInitial
+    resolveInitial(createInitial)
 }
