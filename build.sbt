@@ -37,9 +37,10 @@ libraryDependencies ++= Seq(
 )
 
 libraryDependencies ++= Seq(
-  "org.scalatest"     %% "scalatest"       % scalaTestVersion % Test,
-  "org.scalamock"     %% "scalamock"       % "5.2.0"          % Test,
-  "org.scalatestplus" %% "scalacheck-1-15" % "3.2.11.0"       % Test
+  "org.scalatest"     %% "scalatest"                     % scalaTestVersion % Test,
+  "org.scalamock"     %% "scalamock"                     % "5.2.0"          % Test,
+  "org.scalatestplus" %% "scalacheck-1-15"               % "3.2.11.0"       % Test,
+  "org.typelevel"     %% "cats-effect-testing-scalatest" % "1.4.0"          % Test
 )
 
 Compile / PB.targets := Seq(
