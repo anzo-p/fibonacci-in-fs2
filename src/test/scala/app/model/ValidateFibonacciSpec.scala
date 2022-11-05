@@ -9,8 +9,25 @@ import cats.data.Validated.{Invalid, Valid}
 class ValidateFibonacciSpec extends BaseSpec {
 
   "validate" should {
-    "return invalid" when {
+    "return Valid Fibonacci instance" when {
+      "all values are acceptable" in {
+        ValidateFibonacci.validate(
+          1,
+          2,
+          3
+        ) mustBe Valid(new Fibonacci(1, 2, 3))
+      }
 
+      "'low' and 'high integers' equal, though both are 1" in {
+        ValidateFibonacci.validate(
+          1,
+          1,
+          1
+        ) mustBe Valid(new Fibonacci(1, 1, 1))
+      }
+    }
+
+    "return Invalid" when {
       "non-positive value in 'round'" in {
         ValidateFibonacci.validate(
           0,
@@ -44,24 +61,6 @@ class ValidateFibonacciSpec extends BaseSpec {
           2,
           2
         ) mustBe Invalid(Chain(ValidationError("'lowInteger' 2 and 'highInteger' 2 cannot equal (unless when 1 and 1)")))
-      }
-    }
-
-    "return valid Fibonacci instance" when {
-      "all values are acceptable" in {
-        ValidateFibonacci.validate(
-          1,
-          2,
-          3
-        ) mustBe Valid(new Fibonacci(1, 2, 3))
-      }
-
-      "'low' and 'high integers' equal, though both are 1" in {
-        ValidateFibonacci.validate(
-          1,
-          1,
-          1
-        ) mustBe Valid(new Fibonacci(1, 1, 1))
       }
     }
   }

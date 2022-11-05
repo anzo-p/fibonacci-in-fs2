@@ -24,6 +24,12 @@ class FibonacciStreamBaseSpec extends BaseSpec {
   }
 
   "deserialize" should {
+    "result in Right Fibonacci instance" when {
+      "data deserializes and validates to a Fibonacci instance" in {
+        TestObject.deserialize(Some(serializedWorkingFibonacciProto)) mustBe Right(testValue)
+      }
+    }
+
     "result in Left ConversionError" when {
       "bytearray cannot be validated" in {
         val serializedDummyData = sample[String].getBytes
@@ -46,12 +52,6 @@ class FibonacciStreamBaseSpec extends BaseSpec {
 
         TestObject.deserialize(Some(serializedInvalidFibonacciProto)) mustBe Left(
           ValidationError(s"value 0 in field: 'round' cannot be negative"))
-      }
-    }
-
-    "result in Right Fibonacci instance" when {
-      "data deserializes and validates to a Fibonacci instance" in {
-        TestObject.deserialize(Some(serializedWorkingFibonacciProto)) mustBe Right(testValue)
       }
     }
   }

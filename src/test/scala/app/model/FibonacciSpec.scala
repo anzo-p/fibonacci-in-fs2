@@ -7,12 +7,12 @@ import app.utils.BaseSpec
 class FibonacciSpec extends BaseSpec {
 
   "create" should {
-    "return Invalid when validations are violated" in {
-      Fibonacci.create(0, 1, 1) mustBe Left(ValidationError("value 0 in field: 'round' cannot be negative"))
-    }
-
     "return Valid Fibonacci when values are acceptable" in {
       Fibonacci.create(1, 2, 3) mustBe Right(new Fibonacci(1, 2, 3))
+    }
+
+    "return Invalid when validations are violated" in {
+      Fibonacci.create(0, 1, 1) mustBe Left(ValidationError("value 0 in field: 'round' cannot be negative"))
     }
   }
 
